@@ -1,4 +1,4 @@
-package com.liuwei.news.homefragment.api;
+package com.liuwei.news.api;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

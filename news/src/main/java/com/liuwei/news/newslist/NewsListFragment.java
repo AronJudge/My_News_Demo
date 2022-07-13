@@ -1,16 +1,14 @@
-package com.liuwei.news.homefragment.newslist;
-
-import androidx.annotation.NonNull;
+package com.liuwei.news.newslist;
 
 import android.os.Bundle;
-
-import androidx.databinding.DataBindingUtil;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.listener.OnLoadMoreListener;
@@ -19,8 +17,11 @@ import com.liuwei.network.TecentNetworkApi;
 import com.liuwei.network.observer.BaseObserver;
 import com.liuwei.news.R;
 import com.liuwei.news.databinding.FragmentNewsBinding;
-import com.liuwei.news.homefragment.api.NewsApiInterface;
-import com.liuwei.news.homefragment.api.NewsListBean;
+import com.liuwei.news.api.NewsApiInterface;
+import com.liuwei.news.api.NewsListBean;
+import com.liuwei.news.base.BaseCustomViewModel;
+import com.liuwei.news.newslist.views.picturetitleview.PictureTitleViewModel;
+import com.liuwei.news.newslist.views.titleview.TitleViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +67,8 @@ public class NewsListFragment extends Fragment {
         });
         return viewDataBinding.getRoot();
     }
-    List<NewsListBean.Contentlist> contentlist = new ArrayList<>();
+    private List<BaseCustomViewModel> viewModels = new ArrayList<>();
+    // 与数据相关的操纵都需要再model中做
     protected void load() {
         TecentNetworkApi.getService(NewsApiInterface.class)
                 .getNewsList(getArguments().getString(BUNDLE_KEY_PARAM_CHANNEL_ID),
@@ -75,10 +77,24 @@ public class NewsListFragment extends Fragment {
                     @Override
                     public void onSuccess(NewsListBean newsChannelsBean) {
                         if(mPage == 0) {
-                            contentlist.clear();
+                            viewModels.clear();
                         }
-                        contentlist.addAll(newsChannelsBean.showapiResBody.pagebean.contentlist);
-                        mAdapter.setData(contentlist);
+                        for(NewsListBean.Contentlist contentlist : newsChannelsBean.showapiResBody.pagebean.contentlist) {
+                            if (contentlist.imageurls != null && contentlist.imageurls.size() > 0) {
+                                PictureTitleViewModel pictureTitleViewModel = new PictureTitleViewModel();
+                                pictureTitleViewModel.pictureUrl = contentlist.imageurls.get(0).url;
+                                pictureTitleViewModel.jumpUrl = contentlist.link;
+                                pictureTitleViewModel.title = contentlist.title;
+                                viewModels.add(pictureTitleViewModel);
+                            } else {
+                                TitleViewModel titleViewModel = new TitleViewModel();
+                                titleViewModel.jumpUrl = contentlist.link;
+                                titleViewModel.title = contentlist.title;
+                                viewModels.add(titleViewModel);
+                            }
+                        }
+                        // viewModels.addAll(newsChannelsBean.showapiResBody.pagebean.contentlist);
+                        mAdapter.setData(viewModels);
                         mPage ++;
                         viewDataBinding.refreshLayout.finishRefresh();
                         viewDataBinding.refreshLayout.finishLoadMore();

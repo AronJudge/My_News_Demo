@@ -1,13 +1,12 @@
-package com.liuwei.news.homefragment.headlinenews;
+package com.liuwei.news.headlinenews;
 
 import android.os.Parcelable;
 
-import androidx.databinding.ObservableList;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
-import com.liuwei.news.homefragment.newslist.NewsListFragment;
+import com.liuwei.news.newslist.NewsListFragment;
 
 import java.util.ArrayList;
 import java.util.HashMap;

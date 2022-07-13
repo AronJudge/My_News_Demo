@@ -1,39 +1,31 @@
-package com.liuwei.news.homefragment.newslist;
+package com.liuwei.news.newslist;
 
 import android.content.Context;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.AppCompatImageView;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.liuwei.news.R;
-import com.liuwei.news.homefragment.api.NewsListBean;
-import com.liuwei.webview.WebviewActivity;
+import com.liuwei.news.base.BaseCustomViewModel;
+import com.liuwei.news.base.BaseViewHolder;
+import com.liuwei.news.newslist.views.picturetitleview.PictureTitleView;
+import com.liuwei.news.newslist.views.picturetitleview.PictureTitleViewModel;
+import com.liuwei.news.newslist.views.titleview.TitleView;
 
 import java.util.List;
 
-import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
-
-
-
-public class NewsListRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class NewsListRecyclerViewAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
     private final int VIEW_TYPE_PICTURE_TITLE = 1;
     private final int VIEW_TYPE_TITLE = 2;
-    private List<NewsListBean.Contentlist> mItems;
+    private List<BaseCustomViewModel> mItems;
     private Context mContext;
 
     NewsListRecyclerViewAdapter(Context context) {
         mContext = context;
     }
 
-    void setData(List<NewsListBean.Contentlist> items) {
+    void setData(List<BaseCustomViewModel> items) {
         mItems = items;
         notifyDataSetChanged();
     }
@@ -48,27 +40,24 @@ public class NewsListRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
 
     @Override
     public int getItemViewType(int position) {
-        if (mItems != null && mItems.get(position).imageurls != null && mItems.get(position).imageurls.size() > 1) {
+        if (mItems != null && mItems.get(position) instanceof PictureTitleViewModel) {
             return VIEW_TYPE_PICTURE_TITLE;
         }
         return VIEW_TYPE_TITLE;
     }
 
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view;
+    public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == VIEW_TYPE_PICTURE_TITLE) {
-            view = LayoutInflater.from(mContext).inflate(R.layout.picture_title_view, parent, false);
-            return new PictureTitleViewHolder(view);
+            return new BaseViewHolder(new PictureTitleView(parent.getContext()));
         } else if (viewType == VIEW_TYPE_TITLE) {
-            view = LayoutInflater.from(mContext).inflate(R.layout.title_view, parent, false);
-            return new TitleViewHolder(view);
+            return new BaseViewHolder(new TitleView(parent.getContext()));
         }
 
         return null;
     }
 
-    private class PictureTitleViewHolder extends RecyclerView.ViewHolder {
+/*    private class PictureTitleViewHolder extends RecyclerView.ViewHolder {
         public TextView titleTextView;
         public AppCompatImageView picutureImageView;
 
@@ -83,10 +72,10 @@ public class NewsListRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
                 }
             });
         }
-    }
+    }*/
 
 
-    private class TitleViewHolder extends RecyclerView.ViewHolder {
+/*    private class TitleViewHolder extends RecyclerView.ViewHolder {
         public TextView titleTextView;
 
         public TitleViewHolder(@NonNull View itemView) {
@@ -99,18 +88,9 @@ public class NewsListRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
                 }
             });
         }
-    }
+    }*/
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        holder.itemView.setTag(mItems.get(position).link);
-        if(holder instanceof PictureTitleViewHolder){
-            ((PictureTitleViewHolder) holder).titleTextView.setText(mItems.get(position).title);
-            Glide.with(holder.itemView.getContext())
-                    .load(mItems.get(position).imageurls.get(0).url)
-                    .transition(withCrossFade())
-                    .into(((PictureTitleViewHolder) holder).picutureImageView);
-        } else if(holder instanceof TitleViewHolder) {
-            ((TitleViewHolder) holder).titleTextView.setText(mItems.get(position).title);
-        }
+    public void onBindViewHolder(@NonNull BaseViewHolder holder, int position) {
+        holder.binding(mItems.get(position));
     }
 }

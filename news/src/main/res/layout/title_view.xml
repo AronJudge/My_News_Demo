@@ -5,6 +5,10 @@
         <import type="android.view.View" />
         <import type="android.text.TextUtils" />
         <import type="androidx.databinding.ObservableField" />
+
+        <variable
+            name="viewModel"
+            type="com.liuwei.news.newslist.views.titleview.TitleViewModel" />
     </data>
 
     <LinearLayout
@@ -19,7 +23,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"
+            android:visibility="@{TextUtils.isEmpty(viewModel.title)?View.GONE:View.VISIBLE}"
             android:maxLines="2"
+            android:text="@{viewModel.title}"
             android:gravity="center_vertical"
             android:textColor="#303030"
             android:textSize="16sp"

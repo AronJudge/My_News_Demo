@@ -1,7 +1,6 @@
-package com.liuwei.news.homefragment.headlinenews;
+package com.liuwei.news.headlinenews;
 
 import android.os.Bundle;
-import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,13 +16,10 @@ import com.liuwei.network.TecentNetworkApi;
 import com.liuwei.network.observer.BaseObserver;
 import com.liuwei.news.R;
 import com.liuwei.news.databinding.FragmentHomeBinding;
-import com.liuwei.news.homefragment.api.NewsApiInterface;
-import com.liuwei.news.homefragment.api.NewsChannelsBean;
+import com.liuwei.news.api.NewsApiInterface;
+import com.liuwei.news.api.NewsChannelsBean;
 
 import java.util.ArrayList;
-
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
 
 public class HeadlineNewsFragment extends Fragment {
     public HeadlineNewsFragmentAdapter adapter;

@@ -23,7 +23,7 @@ import com.liuwei.arch_demo.databinding.ActivityMainBinding;
 import com.liuwei.arch_demo.fragments.AccountFragment;
 import com.liuwei.arch_demo.fragments.CategoryFragment;
 import com.liuwei.arch_demo.fragments.ServiceFragment;
-import com.liuwei.news.homefragment.headlinenews.HeadlineNewsFragment;
+import com.liuwei.news.headlinenews.HeadlineNewsFragment;
 
 import java.lang.reflect.Field;
 

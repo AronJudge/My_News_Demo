@@ -1,0 +1,31 @@
+View 只处理用户的即时交互；
+ViewModel 只处理业务逻辑；
+Model 只处理数据存储与获取。
+
+View
+View层，不再是我们之前理解的是一个TextView、LinearLayout等View控件，
+只要是可以和用户进行交互的都可以归属到View层，
+比如：Activity、Fragment、Dialog、PopupWindow、XML布局、布局Adapter、系统及自定义View控件等等，
+只要是用户看到的、摸到的都归View层管。也就是说禁止在这里做业务逻辑、数据操作等和View无直接相关的事情。
+
+Model
+model层，与我们之前把定义的实体bean对象称为model不同的是，
+这里的model被赋予了数据管理的职责。数据的管理包括数据存储与数据获取，
+这里存储的位置不仅限于本地(SharedPreferences、SQLite)，而且也会是网络上的任何存储方式。
+
+ViewModel
+ViewModel层，说是只处理业务逻辑，更准确的说法是Model层和View层的粘合剂，
+从Model中获取数据整合之后提供给View层进行显示，响应View层的事件调用Model层进行响应的落地。
+
+它们的关系
+通过以上大致了解了View-ViewModel-Model是什么、主要干什么，
+通过这三个层次的定义把视图、业务、数据进行了切割，这样职责与分层清楚了，那他们之间怎么传递数据呢？
+
+View层包含两大类，Activity、Fragment、Dialog、PopupWindow等代码类和XML布局类，
+代码类与布局类交互的方式是DataBinding，通过DataBinding的双向绑定技术可以轻松实现View数据的双向通知。
+
+Model层数据的获取与保存绝大部分应该是在服务端的，网络访问是数据交互的重头戏，
+这部分必须在异步中完成，异步处理方面大家都弃Handler而去投奔了Rx的怀抱，
+所有在Model层的网络部分与ViewModel层交互通过Rx的观察者模式Observable。
+
+ViewModel层从Model层获取数据后，需求将数据通知到View层并显示出来，采用Android架构组件中的dataBinding。

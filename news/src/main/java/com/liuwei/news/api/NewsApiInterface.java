@@ -1,8 +1,8 @@
-package com.liuwei.news.homefragment.api;
+package com.liuwei.news.api;
 
+import io.reactivex.Observable;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
-import io.reactivex.Observable;
 
 
 public interface NewsApiInterface {
