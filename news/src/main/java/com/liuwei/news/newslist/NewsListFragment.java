@@ -10,6 +10,7 @@ import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.liuwei.base.MVVM.model.BaseMvvmModel;
 import com.liuwei.base.MVVM.model.IBaseModelListener;
 import com.liuwei.base.MVVM.model.PageResult;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
@@ -48,16 +49,16 @@ public class NewsListFragment extends Fragment implements IBaseModelListener<Lis
         viewDataBinding.listview.setHasFixedSize(true);
         viewDataBinding.listview.setLayoutManager(new LinearLayoutManager(getContext()));
         viewDataBinding.listview.setAdapter(mAdapter);
-        mNewsListModel = new NewsListModel(this,
+        mNewsListModel = new NewsListModel(
                 getArguments().getString(BUNDLE_KEY_PARAM_CHANNEL_ID),
                 getArguments().getString(BUNDLE_KEY_PARAM_CHANNEL_NAME));
-
-        mNewsListModel.loadNextPage();
+        mNewsListModel.register(this);
+        mNewsListModel.load();
 
         viewDataBinding.refreshLayout.setOnRefreshListener(new OnRefreshListener() {
             @Override
             public void onRefresh(@NonNull RefreshLayout refreshLayout) {
-                mNewsListModel.loadNextPage();
+                mNewsListModel.refresh();
             }
         });
 
@@ -72,7 +73,7 @@ public class NewsListFragment extends Fragment implements IBaseModelListener<Lis
     private List<BaseCustomViewModel> viewModels = new ArrayList<>();
 
     @Override
-    public void onLoadSuccess(List<BaseCustomViewModel> baseCustomViewModels, PageResult... results) {
+    public void onLoadSuccess(BaseMvvmModel baseMvvmModel, List<BaseCustomViewModel> baseCustomViewModels, PageResult... results) {
         if (results != null && results.length > 0 && results[0].isFirstPage) {
             viewModels.clear();
         }
@@ -83,9 +84,10 @@ public class NewsListFragment extends Fragment implements IBaseModelListener<Lis
     }
 
     @Override
-    public void onLoadFailed(Throwable e) {
+    public void onLoadFailed(Throwable e, PageResult... results) {
         e.printStackTrace();
     }
+
 /*    // 与数据相关的操纵都需要再model中做
     protected void load() {
         TecentNetworkApi.getService(NewsApiInterface.class)

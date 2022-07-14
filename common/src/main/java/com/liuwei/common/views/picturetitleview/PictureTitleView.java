@@ -48,7 +48,7 @@ public class PictureTitleView extends BaseCustomView<PictureTitleViewBinding, Pi
 
     @Override
     protected void setDataToView(PictureTitleViewModel pictureTitleViewModel) {
-        viewbinding.setViewModel(data);
+        viewbinding.setViewModel(pictureTitleViewModel);
     }
 
 

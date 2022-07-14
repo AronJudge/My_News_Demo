@@ -49,9 +49,9 @@ public abstract class BaseCustomView<VIEWBINDING extends ViewDataBinding, DATA e
     // 模板方法
     @Override
     public void setData(DATA data) {
+        this.data = data;
         setDataToView(data);
         viewbinding.executePendingBindings();
-        this.data = data;
     }
 
     // 工厂方法 建造型
