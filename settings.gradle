@@ -1,2 +1,4 @@
+include ':common'
+include ':base'
 include ':app', ':network', ':news', ':webview'
 rootProject.name='arch_demo'

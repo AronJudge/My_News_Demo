@@ -12,6 +12,8 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.gson.Gson;
+import com.liuwei.base.MVVM.model.IBaseModelListener;
+import com.liuwei.base.MVVM.model.PageResult;
 import com.liuwei.network.TecentNetworkApi;
 import com.liuwei.network.observer.BaseObserver;
 import com.liuwei.news.R;
@@ -20,10 +22,13 @@ import com.liuwei.news.api.NewsApiInterface;
 import com.liuwei.news.api.NewsChannelsBean;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class HeadlineNewsFragment extends Fragment {
+public class HeadlineNewsFragment extends Fragment implements IBaseModelListener<List<NewsChannelsBean.ChannelList>> {
     public HeadlineNewsFragmentAdapter adapter;
     FragmentHomeBinding viewDataBinding;
+    // 注册
+    private NewsChannelModel newsChannelModel;
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         viewDataBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false);
@@ -32,31 +37,20 @@ public class HeadlineNewsFragment extends Fragment {
         viewDataBinding.viewpager.setAdapter(adapter);
         viewDataBinding.tablayout.setupWithViewPager(viewDataBinding.viewpager);
         viewDataBinding.viewpager.setOffscreenPageLimit(1);
-        load();
+        // 注册
+        newsChannelModel = new NewsChannelModel(this);
+        // 加载数据
+        newsChannelModel.load();
         return viewDataBinding.getRoot();
     }
 
-    protected void load() {
-        TecentNetworkApi.getService(NewsApiInterface.class)
-                .getNewsChannels()
-                .compose(TecentNetworkApi.getInstance().applySchedulers(new BaseObserver<NewsChannelsBean>() {
-                    @Override
-                    public void onSuccess(NewsChannelsBean newsChannelsBean) {
-                        Log.e("MainActivity", new Gson().toJson(newsChannelsBean));
-                        ArrayList<HeadlineNewsFragmentAdapter.Channel> channels = new ArrayList<>();
-                        for (NewsChannelsBean.ChannelList source : newsChannelsBean.showapiResBody.channelList) {
-                            HeadlineNewsFragmentAdapter.Channel channel = new HeadlineNewsFragmentAdapter.Channel();
-                            channel.channelId = source.channelId;
-                            channel.channelName = source.name;
-                            channels.add(channel);
-                        }
-                        adapter.setChannels(channels);
-                    }
+    @Override
+    public void onLoadSuccess(List<NewsChannelsBean.ChannelList> channelLists, PageResult... results) {
+        adapter.setChannels(channelLists);
+    }
 
-                    @Override
-                    public void onFailure(Throwable e) {
-                        e.printStackTrace();
-                    }
-                }));
+    @Override
+    public void onLoadFailed(Throwable e) {
+        e.printStackTrace();
     }
 }

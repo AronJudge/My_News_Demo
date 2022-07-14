@@ -1,9 +1,8 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion rootProject.compileSdkVersion
+    compileSdkVersion (rootProject.compileSdkVersion)
     buildToolsVersion rootProject.buildToolsVersion
-
     defaultConfig {
         minSdkVersion rootProject.minSdkVersion
         targetSdkVersion rootProject.targetSdkVersion
@@ -29,9 +28,7 @@ android {
 }
 
 dependencies {
-    api project(":network")
-    implementation project(":common")
-    implementation "com.google.android.material:material:$rootProject.androidXVersion"
-    implementation 'com.scwang.smartrefresh:SmartRefreshLayout:1.1.0-alpha-7'
-    implementation 'com.scwang.smartrefresh:SmartRefreshHeader:1.1.0-alpha-7'//没有使用特殊Header，可以不加这行
+
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'com.google.android.material:material:1.1.0'
 }

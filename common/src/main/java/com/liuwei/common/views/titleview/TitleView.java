@@ -1,15 +1,16 @@
-package com.liuwei.news.newslist.views.titleview;
+package com.liuwei.common.views.titleview;
 
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.LinearLayout;
 
 import androidx.databinding.DataBindingUtil;
 
-import com.liuwei.news.R;
-import com.liuwei.news.databinding.TitleViewBinding;
-import com.liuwei.news.base.BaseCustomView;
+import com.liuwei.base.customview.BaseCustomView;
+import com.liuwei.base.customview.BaseCustomViewModel;
+import com.liuwei.base.customview.IBaseCustomView;
+import com.liuwei.common.R;
+import com.liuwei.common.databinding.TitleViewBinding;
 import com.liuwei.webview.WebviewActivity;
 
 /**
@@ -29,7 +30,10 @@ import com.liuwei.webview.WebviewActivity;
  *
  *  自定义view：构造 测量 画
  */
-public class TitleView extends LinearLayout implements BaseCustomView<TitleViewModel> {
+public class TitleView extends BaseCustomView<TitleViewBinding, TitleViewModel>  {
+    public TitleView(Context context) {
+        super(context);
+    }
         /*
         自动生成
         viewBinding 只能省略find view byId  viewBinding{enable true}  不需要修改xml
@@ -39,16 +43,13 @@ public class TitleView extends LinearLayout implements BaseCustomView<TitleViewM
         <import> 引入一些类
         <variable> 定义变量 和那些数据进行绑定
         <viewModel.cells>
-            */
-    TitleViewModel viewModel;
-    TitleViewBinding titleViewBinding;
     // 不同地方创建view， 参数不一样， 来源于代码只需要这一个就够了
     public TitleView(Context context) {
         super(context);
-        init();
     }
 
-    public void init() {
+/*     // 父类已经做了
+        public void init() {
         // 简单工厂
         LayoutInflater inflater = (LayoutInflater) getContext()
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -60,11 +61,20 @@ public class TitleView extends LinearLayout implements BaseCustomView<TitleViewM
             }
         });
         addView(titleViewBinding.getRoot());
+    }*/
+
+    @Override
+    public int getLayoutID() {
+        return R.layout.title_view;
     }
 
-    public void setData(TitleViewModel data) {
-        titleViewBinding.setViewModel(data);
-        titleViewBinding.executePendingBindings();
-        this.viewModel = data;
+    @Override
+    public void onRootViewClicked(View view) {
+        WebviewActivity.startCommonWeb(getContext(),"News", data.jumpUrl+"");
+    }
+
+    @Override
+    protected void setDataToView(TitleViewModel titleViewModel) {
+        viewbinding.setViewModel(data);
     }
 }

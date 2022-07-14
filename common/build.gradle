@@ -1,9 +1,8 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion rootProject.compileSdkVersion
+    compileSdkVersion (rootProject.compileSdkVersion)
     buildToolsVersion rootProject.buildToolsVersion
-
     defaultConfig {
         minSdkVersion rootProject.minSdkVersion
         targetSdkVersion rootProject.targetSdkVersion
@@ -27,11 +26,15 @@ android {
         enabled true
     }
 }
-
 dependencies {
-    api project(":network")
-    implementation project(":common")
-    implementation "com.google.android.material:material:$rootProject.androidXVersion"
-    implementation 'com.scwang.smartrefresh:SmartRefreshLayout:1.1.0-alpha-7'
-    implementation 'com.scwang.smartrefresh:SmartRefreshHeader:1.1.0-alpha-7'//没有使用特殊Header，可以不加这行
+
+    // private
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'com.google.android.material:material:1.1.0'
+    // public 传递
+    api project(":base")
+    api project(":webview")
+    api 'com.github.bumptech.glide:glide:4.7.1'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.7.1'
+
 }

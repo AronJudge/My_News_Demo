@@ -8,7 +8,7 @@
 
         <variable
             name="viewModel"
-            type="com.liuwei.news.newslist.views.titleview.TitleViewModel" />
+            type="com.liuwei.common.views.titleview.TitleViewModel" />
     </data>
 
     <LinearLayout

@@ -9,7 +9,7 @@
 
         <variable
             name="viewModel"
-            type="com.liuwei.news.newslist.views.picturetitleview.PictureTitleViewModel"/>
+            type="com.liuwei.common.views.picturetitleview.PictureTitleViewModel"/>
     </data>
 
     <LinearLayout xmlns:tools="http://schemas.android.com/tools"

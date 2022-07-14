@@ -1,13 +1,16 @@
-package com.liuwei.news.base;
+package com.liuwei.base.recycleview;
 
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.liuwei.base.customview.IBaseCustomView;
+import com.liuwei.base.customview.BaseCustomViewModel;
+
 public class BaseViewHolder extends RecyclerView.ViewHolder {
-    private  BaseCustomView itemView;
-    public BaseViewHolder(@NonNull BaseCustomView itemView) {
+    private IBaseCustomView itemView;
+    public BaseViewHolder(@NonNull IBaseCustomView itemView) {
         super((View)itemView);
         this.itemView = itemView;
     }

@@ -1,16 +1,16 @@
 package com.liuwei.news.newslist;
 
-import android.content.Context;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.liuwei.news.base.BaseCustomViewModel;
-import com.liuwei.news.base.BaseViewHolder;
-import com.liuwei.news.newslist.views.picturetitleview.PictureTitleView;
-import com.liuwei.news.newslist.views.picturetitleview.PictureTitleViewModel;
-import com.liuwei.news.newslist.views.titleview.TitleView;
+import com.liuwei.base.customview.BaseCustomViewModel;
+
+import com.liuwei.base.recycleview.BaseViewHolder;
+import com.liuwei.common.views.picturetitleview.PictureTitleView;
+import com.liuwei.common.views.picturetitleview.PictureTitleViewModel;
+import com.liuwei.common.views.titleview.TitleView;
 
 import java.util.List;
 
@@ -19,11 +19,11 @@ public class NewsListRecyclerViewAdapter extends RecyclerView.Adapter<BaseViewHo
     private final int VIEW_TYPE_PICTURE_TITLE = 1;
     private final int VIEW_TYPE_TITLE = 2;
     private List<BaseCustomViewModel> mItems;
-    private Context mContext;
 
+/*    private Context mContext;
     NewsListRecyclerViewAdapter(Context context) {
         mContext = context;
-    }
+    }*/
 
     void setData(List<BaseCustomViewModel> items) {
         mItems = items;
