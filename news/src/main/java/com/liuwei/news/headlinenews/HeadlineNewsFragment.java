@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.gson.Gson;
@@ -25,11 +26,11 @@ import com.liuwei.news.api.NewsChannelsBean;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HeadlineNewsFragment extends Fragment implements IBaseModelListener<List<NewsChannelsBean.ChannelList>> {
+public class HeadlineNewsFragment extends Fragment {
     public HeadlineNewsFragmentAdapter adapter;
     FragmentHomeBinding viewDataBinding;
     // 注册
-    private NewsChannelModel newsChannelModel;
+    private HeadlineNewsViewModel headlineNewsViewModel;
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         viewDataBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false);
@@ -39,14 +40,17 @@ public class HeadlineNewsFragment extends Fragment implements IBaseModelListener
         viewDataBinding.tablayout.setupWithViewPager(viewDataBinding.viewpager);
         viewDataBinding.viewpager.setOffscreenPageLimit(1);
         // 注册
-        newsChannelModel = new NewsChannelModel();
-        newsChannelModel.register(this);
-        // 加载数据
-        newsChannelModel.load();
+        headlineNewsViewModel = new HeadlineNewsViewModel();
+        headlineNewsViewModel.dataList.observe(this, new Observer<List<NewsChannelsBean.ChannelList>>() {
+            @Override
+            public void onChanged(List<NewsChannelsBean.ChannelList> channelLists) {
+                adapter.setChannels(channelLists);
+            }
+        });
         return viewDataBinding.getRoot();
     }
 
-    @Override
+/*    @Override
     public void onLoadSuccess(BaseMvvmModel baseMvvmModel, List<NewsChannelsBean.ChannelList> channelLists, PageResult... results) {
         adapter.setChannels(channelLists);
     }
@@ -54,6 +58,6 @@ public class HeadlineNewsFragment extends Fragment implements IBaseModelListener
     @Override
     public void onLoadFailed(Throwable e, PageResult... results) {
         e.printStackTrace();
-    }
+    }*/
 
 }

@@ -8,11 +8,13 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.liuwei.base.MVVM.model.BaseMvvmModel;
 import com.liuwei.base.MVVM.model.IBaseModelListener;
 import com.liuwei.base.MVVM.model.PageResult;
+import com.liuwei.base.MVVM.viewmodel.ViewStatus;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.listener.OnLoadMoreListener;
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
@@ -24,11 +26,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class NewsListFragment extends Fragment implements IBaseModelListener<List<BaseCustomViewModel>> {
+public class NewsListFragment extends Fragment implements Observer{
 
     private NewsListRecyclerViewAdapter mAdapter;
     private FragmentNewsBinding viewDataBinding;
-    private NewsListModel mNewsListModel;
+    private NewsListViewModel newsListViewModel;
 
     protected final static String BUNDLE_KEY_PARAM_CHANNEL_ID = "bundle_key_param_channel_id";
     protected final static String BUNDLE_KEY_PARAM_CHANNEL_NAME = "bundle_key_param_channel_name";
@@ -49,30 +51,61 @@ public class NewsListFragment extends Fragment implements IBaseModelListener<Lis
         viewDataBinding.listview.setHasFixedSize(true);
         viewDataBinding.listview.setLayoutManager(new LinearLayoutManager(getContext()));
         viewDataBinding.listview.setAdapter(mAdapter);
-        mNewsListModel = new NewsListModel(
+        newsListViewModel = new NewsListViewModel(
                 getArguments().getString(BUNDLE_KEY_PARAM_CHANNEL_ID),
                 getArguments().getString(BUNDLE_KEY_PARAM_CHANNEL_NAME));
-        mNewsListModel.register(this);
-        mNewsListModel.load();
 
         viewDataBinding.refreshLayout.setOnRefreshListener(new OnRefreshListener() {
             @Override
             public void onRefresh(@NonNull RefreshLayout refreshLayout) {
-                mNewsListModel.refresh();
+                newsListViewModel.refresh();
             }
         });
 
         viewDataBinding.refreshLayout.setOnLoadMoreListener(new OnLoadMoreListener() {
             @Override
             public void onLoadMore(@NonNull RefreshLayout refreshLayout) {
-                mNewsListModel.loadNextPage();
+                newsListViewModel.loadNextPage();
             }
         });
+
+        newsListViewModel.dataList.observe(this, new Observer<List<BaseCustomViewModel>>() {
+            @Override
+            public void onChanged(List<BaseCustomViewModel> baseCustomViewModels) {
+                mAdapter.setData(baseCustomViewModels);
+                viewDataBinding.refreshLayout.finishRefresh();
+                viewDataBinding.refreshLayout.finishLoadMore();
+            }
+        });
+
+        newsListViewModel.viewStatus.observe(this, this);
+
         return viewDataBinding.getRoot();
     }
-    private List<BaseCustomViewModel> viewModels = new ArrayList<>();
 
+    // 加载不同的图片
     @Override
+    public void onChanged(Object o) {
+        if (o instanceof ViewStatus) {
+            switch ((ViewStatus) o) {
+                case LOADING:
+                    break;
+                case EMPTY:
+                case SHOW_CONTENT:
+                    break;
+                case NO_MORE_DATA:
+                    break;
+                case REFRESH_ERROR:
+                    break;
+                case LOAD_MORE_FAILED:
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+/*    @Override
     public void onLoadSuccess(BaseMvvmModel baseMvvmModel, List<BaseCustomViewModel> baseCustomViewModels, PageResult... results) {
         if (results != null && results.length > 0 && results[0].isFirstPage) {
             viewModels.clear();
@@ -86,7 +119,7 @@ public class NewsListFragment extends Fragment implements IBaseModelListener<Lis
     @Override
     public void onLoadFailed(Throwable e, PageResult... results) {
         e.printStackTrace();
-    }
+    }*/
 
 /*    // 与数据相关的操纵都需要再model中做
     protected void load() {

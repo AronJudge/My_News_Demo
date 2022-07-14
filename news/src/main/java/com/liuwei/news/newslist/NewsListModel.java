@@ -25,7 +25,7 @@ public class NewsListModel extends BaseMvvmModel<NewsListBean, List<BaseCustomVi
 
 
     public NewsListModel(String channelID, String channelName) {
-        super(true,channelID + channelName + "_Key",1);
+        super(true,channelID + channelName + "_Key",null,1);
         this.mChannelID = channelID;
         this.mChannelName = channelName;
     }
@@ -35,7 +35,9 @@ public class NewsListModel extends BaseMvvmModel<NewsListBean, List<BaseCustomVi
     protected void load() {
         TecentNetworkApi.getService(NewsApiInterface.class)
                 .getNewsList(mChannelID, mChannelName, String.valueOf(mPage))
-                .compose(TecentNetworkApi.getInstance().applySchedulers(new BaseObserver<NewsListBean>() {
+                .compose(TecentNetworkApi.getInstance()
+                        .applySchedulers(new BaseObserver<NewsListBean>(this,this)));
+/*                {
                     @Override
                     public void onSuccess(NewsListBean newsListsBean) {
                         List<BaseCustomViewModel> viewModels = new ArrayList<>();
@@ -59,17 +61,41 @@ public class NewsListModel extends BaseMvvmModel<NewsListBean, List<BaseCustomVi
                         notifyResultToListener(newsListsBean,viewModels);
                         // mPage++;
                         // viewModels.addAll(newsListsBean.showapiResBody.pagebean.contentlist);
-/*                        mAdapter.setData(viewModels);
+*//*                        mAdapter.setData(viewModels);
                         mPage ++;
                         viewDataBinding.refreshLayout.finishRefresh();
-                        viewDataBinding.refreshLayout.finishLoadMore();*/
+                        viewDataBinding.refreshLayout.finishLoadMore();*//*
                     }
 
                     @Override
                     public void onFailure(Throwable e) {
                         loadFail(e);
                     }
-                }));
+                }));*/
     }
 
+    @Override
+    public void onSuccess(NewsListBean newsListsBean, boolean isFromCache) {
+        List<BaseCustomViewModel> viewModels = new ArrayList<>();
+        for (NewsListBean.Contentlist contentlist : newsListsBean.showapiResBody.pagebean.contentlist) {
+            if (contentlist.imageurls != null && contentlist.imageurls.size() > 0) {
+                PictureTitleViewModel pictureTitleViewModel = new PictureTitleViewModel();
+                pictureTitleViewModel.pictureUrl = contentlist.imageurls.get(0).url;
+                pictureTitleViewModel.jumpUrl = contentlist.link;
+                pictureTitleViewModel.title = contentlist.title;
+                viewModels.add(pictureTitleViewModel);
+            } else {
+                TitleViewModel titleViewModel = new TitleViewModel();
+                titleViewModel.jumpUrl = contentlist.link;
+                titleViewModel.title = contentlist.title;
+                viewModels.add(titleViewModel);
+            }
+        }
+        notifyResultToListener(newsListsBean,viewModels, isFromCache);
+    }
+
+    @Override
+    public void onFailure(Throwable e) {
+            loadFail(e);
+    }
 }

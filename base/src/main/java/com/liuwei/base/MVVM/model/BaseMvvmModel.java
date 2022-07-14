@@ -1,16 +1,27 @@
 package com.liuwei.base.MVVM.model;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.liuwei.base.customview.MvvmDataObserver;
 import com.liuwei.base.preference.BasicDataPreferenceUtil;
+import com.liuwei.base.utils.GenericUtils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
 
-public abstract class BaseMvvmModel<NETWORK_DATA, RESULT_DATA> {
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 
+public abstract class BaseMvvmModel<NETWORK_DATA, RESULT_DATA> implements MvvmDataObserver<NETWORK_DATA> {
+
+    private CompositeDisposable compositeDisposable;
     private boolean mIsPage;
     private final int INIT_PAGE_NUMBER;
     private boolean mIsLoading;
+    private String mApbPremedData;
 
     // 缓存
     // 栏目数据 新闻数据在变
@@ -19,7 +30,8 @@ public abstract class BaseMvvmModel<NETWORK_DATA, RESULT_DATA> {
     // 网络上回来的数据
 
 
-    protected BaseMvvmModel(boolean isPage, String CachePreferenceKey, int... targetPageNumber) {
+    protected BaseMvvmModel(boolean isPage, String CachePreferenceKey, String apkPreData, int... targetPageNumber) {
+        this.mApbPremedData = apkPreData;
         this.mIsPage = isPage;
         this.mCachePreferenceKey = CachePreferenceKey;
         if(isPage && targetPageNumber != null && targetPageNumber.length > 0) {
@@ -36,6 +48,48 @@ public abstract class BaseMvvmModel<NETWORK_DATA, RESULT_DATA> {
                 mPage = INIT_PAGE_NUMBER;
             }
             mIsLoading = true;
+            getCacheDataAndLoad();
+        }
+    }
+
+    // 需不需要刷新
+    protected boolean isNeedToUpdate(long cacheTimeSlot) {
+        return true;
+    }
+
+    // 缓存读取
+    public void getCacheDataAndLoad() {
+        if (!mIsLoading) {
+            mIsLoading = true;
+            if (mCachePreferenceKey != null) {
+                String saveDataString = BasicDataPreferenceUtil.getInstance().getString(mCachePreferenceKey);
+                if (saveDataString != null) {
+                    // 反序列化数据
+                    try {
+                        NETWORK_DATA saveData = new
+                                Gson().fromJson(new JSONObject(saveDataString)
+                                // 拿到泛型的Type
+                                .getString("data"),(Class<NETWORK_DATA>) GenericUtils.getGenericType(this));
+                        if (saveData != null) {
+                            onSuccess(saveData, true);
+                        }
+                        long TimeSlot = Long.parseLong(new JSONObject(saveDataString).getString("updateTimeMills"));
+                        if (isNeedToUpdate(TimeSlot)) {
+                            load();
+                            return;
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                // 预制的数据
+                if (mApbPremedData != null) {
+                    NETWORK_DATA data = new Gson().fromJson(mApbPremedData, (Class<NETWORK_DATA>) GenericUtils.getGenericType(this));
+                    if (data!= null) {
+                        onSuccess(data, true);
+                    }
+                }
+            }
             load();
         }
     }
@@ -58,7 +112,7 @@ public abstract class BaseMvvmModel<NETWORK_DATA, RESULT_DATA> {
         }
     }
 
-    protected void notifyResultToListener(NETWORK_DATA network_data, RESULT_DATA data) {
+    protected void notifyResultToListener(NETWORK_DATA network_data, RESULT_DATA data, boolean isCache) {
         IBaseModelListener listener = mReferenceIBaseModelListener.get();
         if (listener != null) {
             if (mIsPage) {
@@ -73,24 +127,26 @@ public abstract class BaseMvvmModel<NETWORK_DATA, RESULT_DATA> {
 
             // 存网络的数据  缓存 序列化 反序列化  存取没问题 但是取有问题 反序列化
             if (mIsPage) {
-                if (mCachePreferenceKey != null && mPage == INIT_PAGE_NUMBER) {
+                if (mCachePreferenceKey != null && mPage == INIT_PAGE_NUMBER && !isCache) {
                     staveDataToReference(network_data);
                 }
             } else {
-                if (mCachePreferenceKey != null) {
+                if (mCachePreferenceKey != null && !isCache) {
                     staveDataToReference(network_data);
                 }
             }
 
 
             // update page number
-            if (mIsPage) {
+            if (mIsPage && !isCache) {
                 if (data != null && ((List)data).size() > 0) {
                     mPage++;
                 }
             }
         }
-        mIsLoading = false;
+        if (!isCache) {
+            mIsLoading = false;
+        }
     }
 
     protected void  loadFail(final Throwable e) {
@@ -117,4 +173,22 @@ public abstract class BaseMvvmModel<NETWORK_DATA, RESULT_DATA> {
         }
     }
 
+
+
+
+    public void cancel() {
+        if (compositeDisposable != null && !compositeDisposable.isDisposed()) {
+            compositeDisposable.dispose();
+        }
+    }
+
+    public void addDisposable(Disposable d) {
+        if (d== null) {
+            return;
+        }
+        if(compositeDisposable == null) {
+            compositeDisposable = new CompositeDisposable();
+        }
+        compositeDisposable.add(d);
+    }
 }
