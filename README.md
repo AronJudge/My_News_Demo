@@ -1186,4 +1186,106 @@ i686-linux-android-addr2line.exe -f -C -e libbugly.so 0x1feab
 
 ![image-20220625134049105](https://user-images.githubusercontent.com/30100887/175760046-d5134d54-ad26-4353-8ab3-7acb4af6352b.png)
 
+commit 7dd251e75fe96ef32c9f1867d235a7b171b31b9c
+Author: AronJudge <2286381138@qq.com>
+Date:   Thu Jul 14 21:31:15 2022 +0800
+
+    第五次提交
+    
+    添加数据缓存， 预制数据， 减少加载空白
+    
+    原来的数据来源仅仅只有网络这一个渠道，增加了从缓存中取数据的渠道
+    
+    当Load数据的时候先从缓存中加载， 再从网络中加载.
+    
+    添加BaseObserver， 数据均从这里取。
+    
+    预知新闻栏目数据，新闻栏目数据几乎不会改变
+    
+    可以提前预知， 以免第一次打开APP 没有网络的情况下全部是空白的情况。
+
+commit d0fdc8154d6397984861b72f9c8da2dffd7db3ab
+Author: AronJudge <2286381138@qq.com>
+Date:   Thu Jul 14 17:31:18 2022 +0800
+
+    第四次提交
+    
+    实现BaseModel， 让各个模块的Model仅仅做数据转换
+    其余包括分页， 刷新，通知数据变化的操作全部提取到BaseViewModel
+    
+    1. 将Listener 提取到 BasemvvmModel.
+    2. 将PagNumber refresh loaddata 提取到BaseMVVMModel.
+    3. 添加了BaseCacheData， 将数据缓存到本地，TODO还不能解析出来数据.
+    4. 在网络数据返回成功的时候， 根据数据类型 报错了不分页的全量数据，
+       分页的第一页数据.
+    栏目的数据不会改变， 网络的数据实时改变
+    栏目的数据可以永久缓存。
+
+commit 15b8587f22870c4fe66eb98113a9d0b490c8b09a
+Author: AronJudge <2286381138@qq.com>
+Date:   Thu Jul 14 15:19:14 2022 +0800
+
+    第三次提交
+    
+    为了更好的实现模块化
+    
+    添加了Base和common模块，同时抽取了News中内容：
+    
+    base：基础的东西，影响面广
+    common：公共的View，有点像组件化中的 路由
+    
+    把网络请求封装到对应的Model中，让各个moudel负责各自的数据
+    （单一原则）
+    
+    同时实现了分页和不分页的接口
+
+commit 4605fc648936ee79db02c486a4eda553542275a3
+Author: AronJudge <2286381138@qq.com>
+Date:   Thu Jul 14 00:19:06 2022 +0800
+
+    第二次提交
+    
+    1. Recycel adapter 进行重构 adapter 满足单一职原则 解耦
+    
+    2. 将TitleView 和 RecycleView进行抽离，使用自定义View
+    
+    3. 增加ViewModel（负责数据处理） 和 DataBinding 实现数据和视图的抽离
+    
+    4. 简化代码逻辑
+    
+    之前的流程：
+    1. network模块返回contentList数据集合
+    2. 数据给到newsListFragment里面对数据进行变换
+    3. RecycleAdapter创建ItemView，并根据数据类型进行选择对应的Itemview
+    4. RecycleAdapter将数据填充到View视图
+    缺点： 耦合性太高， RecycleAdapter干了太多的事情
+    
+    现在的逻辑：
+    1. network模块返回contentList数据集合
+    2. 数据给到newsListFragment里面对数据进行变换
+    3. 创建自定义的ViewModel，并将数据给到ViewModel
+    4. 创建自定义的View，View会通过DataBinding绑定ViewModel的数据
+    5. RecycleViewAdapter仅仅负责选择自定义View进行显示就可以
+    
+    自定义View关系自己的数据，解耦。
+
+commit 061a27a0f15f25c40d638c7a2c72f4d5f78d7609
+Author: AronJudge <2286381138@qq.com>
+Date:   Thu Jul 14 00:03:53 2022 +0800
+
+    第一次提交
+    
+    初始化Demo，基于Demo做后续的优化
+    
+    本Demo是基于MVVM架构的Tencent的新闻客户端APP
+    
+    实现了 层次化 模块化 控件化
+    
+    Demo来源网络，仅供个人学习使用
+
+commit 66a45854e134620a09d9c28fa82ac76aa6498482
+Author: AronJudge <2286381138@qq.com>
+Date:   Wed Jul 13 23:32:02 2022 +0800
+
+    Create README.md
 
