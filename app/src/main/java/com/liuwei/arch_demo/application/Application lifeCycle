@@ -1,0 +1,10 @@
+Application的生命周期
+
+程序创建的时候执行 OnCreate
+
+程序终止的时候执行 onTerminate()
+
+低内存的时候执行 onLowMemory()
+
+程序在内存清理的时候执行（回收内存）onTrimMemory()
+HOME键退出应用程序、长按MENU键，打开Recent TASK都会执行
