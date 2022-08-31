@@ -114,7 +114,6 @@ public class MainActivity extends AppCompatActivity {
                 if (to != null) {
                     transaction.show(to).commit();
                 }
-
             }
         }
     }

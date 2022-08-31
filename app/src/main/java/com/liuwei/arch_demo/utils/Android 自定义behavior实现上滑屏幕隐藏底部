@@ -1,0 +1,135 @@
+
+Android 自定义behavior实现上滑屏幕隐藏底部
+
+BottomNavigationView。它通常位于程序最下端，用来做为下端的导航。通过点击不同的标签切换到不同的页面中，
+这些页面可以是Activity,也可以是Fragment.
+具体的操作步骤
+
+0. BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+
+
+1. 给控件设置监听器OnNavigationItemSelectedListener，并且重写onNavigationItemSelected方法。
+viewDataBinding.bottomView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                Fragment fragCategory = null;
+                // init corresponding fragment
+                switch (item.getItemId()) {
+                    case R.id.menu_home:
+                        fragCategory = mHomeFragment;
+                        break;
+                    case R.id.menu_categories:
+                        fragCategory = mCategoryFragment;
+                        break;
+                    case R.id.menu_services:
+                        fragCategory = mServiceFragment;
+                        break;
+                    case R.id.menu_account:
+                        fragCategory = mAccountFragment;
+                        break;
+                }
+                //Set bottom menu selected item text in toolbar
+                ActionBar actionBar = getSupportActionBar();
+                if (actionBar != null) {
+                    actionBar.setTitle(item.getTitle());
+                }
+                switchFragment(fromFragment, fragCategory);
+                fromFragment = fragCategory;
+                return true;
+            }
+        });
+
+2. 通过导航栏中的id来判断当前在哪个导航栏目中
+
+    private void switchFragment(Fragment from, Fragment to) {
+        if (from != to) {
+            FragmentManager manger = getSupportFragmentManager();
+            FragmentTransaction transaction = manger.beginTransaction();
+            if (!to.isAdded()) {
+                if (from != null) {
+                    transaction.hide(from);
+                }
+                if (to != null) {
+                    transaction.add(R.id.container, to, to.getClass().getName()).commit();
+                }
+
+            } else {
+                if (from != null) {
+                    transaction.hide(from);
+                }
+                if (to != null) {
+                    transaction.show(to).commit();
+                }
+
+            }
+        }
+    }
+ 3. 进而切换到相应的Fragment或者Activity中
+        private void switchFragment(Fragment from, Fragment to) {
+            if (from != to) {
+                FragmentManager manger = getSupportFragmentManager();
+                FragmentTransaction transaction = manger.beginTransaction();
+                if (!to.isAdded()) {
+                    if (from != null) {
+                        transaction.hide(from);
+                    }
+                    if (to != null) {
+                        transaction.add(R.id.container, to, to.getClass().getName()).commit();
+                    }
+
+                } else {
+                    if (from != null) {
+                        transaction.hide(from);
+                    }
+                    if (to != null) {
+                        transaction.show(to).commit();
+                    }
+
+                }
+            }
+        }
+
+
+public class BottomNavigationBehavior extends CoordinatorLayout.Behavior<View> {
+    private ObjectAnimator outAnimator, inAnimator;
+    public BottomNavigationBehavior(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    // 垂直滑动
+    @Override
+    public boolean onStartNestedScroll(CoordinatorLayout coordinatorLayout, View child, View directTargetChild, View target, int nestedScrollAxes) {
+        return nestedScrollAxes == ViewCompat.SCROLL_AXIS_VERTICAL;
+    }
+
+    @Override
+    public void onNestedPreScroll(CoordinatorLayout coordinatorLayout, View child, View target, int dx, int dy, int[] consumed) {
+        if (dy > 0) {// 上滑隐藏
+            if (outAnimator == null) {
+                outAnimator = ObjectAnimator.ofFloat(child, "translationY", 0, child.getHeight());
+                outAnimator.setDuration(200);
+            }
+            if (!outAnimator.isRunning() && child.getTranslationY() <= 0) {
+                outAnimator.start();
+            }
+        } else if (dy < 0) {// 下滑显示
+            if (inAnimator == null) {
+                inAnimator = ObjectAnimator.ofFloat(child, "translationY", child.getHeight(), 0);
+                inAnimator.setDuration(200);
+            }
+            if (!inAnimator.isRunning() && child.getTranslationY() >= child.getHeight()) {
+                inAnimator.start();
+            }
+        }
+    }
+}
+
+
+CoordinatorLayout
+
+CoordinatorLayout布局是一个调度者，中心指挥者，在它布局下的所有的直接子View可以通过Behavior来和CoordinatorLayout
+中心指挥者通信。中心指挥者就可以根据Behavior来为子View指定依赖的同级View、嵌套滑动、事件拦截。
+
+
+CoordinatorLayout比较常用在嵌套滑动或者吸顶效果上，实现方式也比较简单。一般CoordinatorLayout会有三层结构。
+CoordinatorLayout作为一个滑动布局的最外层，里面包裹一个AppBarLayout和一个可以滑动的NestedSV、RecyclerView、ViewPager等。

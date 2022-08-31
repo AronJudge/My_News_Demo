@@ -1,0 +1,26 @@
+## DataBinding
+
+https://blog.csdn.net/Eqiqi/article/details/121670801
+
+DataBinding 是谷歌官方发布的一个框架，顾名思义即为数据绑定，是 MVVM 模式在 Android 上的一种实现，
+用于降低布局和逻辑的耦合性，使代码逻辑更加清晰。MVVM 相对于 MVP，其实就是将 Presenter 层替换成了 ViewModel 层。
+DataBinding 能够省去我们一直以来的 findViewById() 步骤，大量减少 Activity 内的代码，
+数据能够单向或双向绑定到 layout 文件中，有助于防止内存泄漏，而且能自动进行空检测以避免空指针异常.
+
+启用 DataBinding 的方法是在对应 Model 的 build.gradle 文件里加入以下代码，同步后就能引入对 DataBinding 的支持
+
+    dataBinding {
+        enabled true
+    }
+启用 DataBinding 后，这里先来看下如何在布局文件中绑定指定的变量打开布局文件，
+选中根布局的 ViewGroup，按住 Alt + 回车键，点击 “Convert to data binding layout”，就可以生成 DataBinding 需要的布局规则
+
+和原始布局的区别在于多出了一个 layout 标签将原布局包裹了起来，data 标签用于声明要用到的变量以及变量类型，
+
+要实现 MVVM 的 Vi通过 @{userInfo.name} 使 TextView 引用到相关的变量，DataBinding 会将之映射到相应的 getter 方法
+之后可以在 Activity 中通过 DataBindingUtil 设置布局文件，省略原先 Activity 的 setContentView() 方法，并为变量
+userInfo 赋值ewModel 就需要把数据（Model）与 UI（View）进行绑定，data 标签的作用就像一个桥梁搭建了 View 和 Model 之间的通道.
+
+由于 @{userInfo.name}在布局文件中并没有明确的值，所以在预览视图中什么都不会显示，
+不便于观察文本的大小和字体颜色等属性，此时可以为之设定默认值（文本内容或者是字体大小等属性都适用），
+默认值将只在预览视图中显示，且默认值不能包含引号

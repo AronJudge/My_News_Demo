@@ -1,13 +1,16 @@
 package com.liuwei.arch_demo.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Lifecycle;
 
 import com.liuwei.arch_demo.R;
 import com.liuwei.arch_demo.databinding.FragmentOthersBinding;
