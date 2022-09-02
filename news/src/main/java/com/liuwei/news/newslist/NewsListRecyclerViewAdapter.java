@@ -53,7 +53,6 @@ public class NewsListRecyclerViewAdapter extends RecyclerView.Adapter<BaseViewHo
         } else if (viewType == VIEW_TYPE_TITLE) {
             return new BaseViewHolder(new TitleView(parent.getContext()));
         }
-
         return null;
     }
 

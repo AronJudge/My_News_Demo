@@ -1,0 +1,12 @@
+ViewPager介绍
+
+Viewpager使用起来就是我们通过创建adapter给它填充多个view，左右滑动时，切换不同的view。
+Google官方是建议我们使用Fragment来填充ViewPager的，这样 可以更加方便的生成每个Page，以及管理每个Page的生命周期。
+
+1. ViewPager使用一个键对象来关联每一页，而不是管理View。这个键用于追踪和唯一标识在adapter中独立位置中的一页。
+    调用方法startUpdate(ViewGroup)表明ViewPager中的内容需要更改。
+2. 通过调用一次或多次调用instantiateItem(ViewGroup, int)来构造页面视图。
+3. 调用destroyItem(ViewGroup, int, Object)来取消ViewPager关联的页面视图。
+4. 最后，当一次更新（添加和/或移除）完成之后将会调用finishUpdate(ViewGroup)来通知adapter,
+    提交关联和/或取消关联的操作。这三个方法就是用于ViewPager使用回调的方式来通知PagerAdapter来管理其中的页面。
+

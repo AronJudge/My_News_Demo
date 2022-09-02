@@ -33,6 +33,7 @@ public abstract class BaseMvvmModel<NETWORK_DATA, RESULT_DATA> implements MvvmDa
     protected BaseMvvmModel(boolean isPage, String CachePreferenceKey, String apkPreData, int... targetPageNumber) {
         this.mApbPremedData = apkPreData;
         this.mIsPage = isPage;
+        // NEW_CHANNEL_KEY
         this.mCachePreferenceKey = CachePreferenceKey;
         if(isPage && targetPageNumber != null && targetPageNumber.length > 0) {
             INIT_PAGE_NUMBER = targetPageNumber[0];
@@ -66,10 +67,10 @@ public abstract class BaseMvvmModel<NETWORK_DATA, RESULT_DATA> implements MvvmDa
                 if (saveDataString != null) {
                     // 反序列化数据
                     try {
+                        // 拿到泛型的Type
                         NETWORK_DATA saveData = new
-                                Gson().fromJson(new JSONObject(saveDataString)
+                                Gson().fromJson(new JSONObject(saveDataString).getString("data"),(Class<NETWORK_DATA>) GenericUtils.getGenericType(this));
                                 // 拿到泛型的Type
-                                .getString("data"),(Class<NETWORK_DATA>) GenericUtils.getGenericType(this));
                         if (saveData != null) {
                             onSuccess(saveData, true);
                         }

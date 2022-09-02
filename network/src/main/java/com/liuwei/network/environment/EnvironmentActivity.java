@@ -59,6 +59,7 @@ public class EnvironmentActivity extends AppCompatActivity {
     }
 
     public static boolean isOfficialEnvironment(Application application) {
+        // 该方法是静态的，可以直接调用，生成一个名为”yourpackageName_preferences“的偏好文件，且其mode为默认私有。
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(application);
         String environment = prefs.getString(EnvironmentActivity.NETWORK_ENVIRONMENT_PREF_KEY, "1");
         return "1".equalsIgnoreCase(environment);

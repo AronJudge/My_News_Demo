@@ -1,0 +1,201 @@
+MutableLiveData是什么？
+
+Android的官方文档种描述为可以在给定生命周期中观察的数据持有类。
+
+因此生命周期拥有者应和观察者成对添加，使用observe：当LiveData中的数据发生变化时，
+并且生命周期的状态为START或是RESUME状态时，观察者就能观察到数据变化。这么做的原因是避免资源的浪费，
+当所有者的状态变为destroy状态，观察者将自动被移除。
+
+1.首先LiveData其实与数据实体类(POJO类)是一样的东西,它负责暂存数据.
+
+2.其次LiveData其实也是一个观察者模式的数据实体类,它可以跟它注册的观察者回调数据是否已经更新.
+
+3.LiveData还能知晓它绑定的Activity或者Fragment的生命周期,它只会给前台活动的activity回调(这个很厉害).
+    这样你可以放心的在它的回调方法里直接将数据添加到View,而不用担心会不会报错.(你也可以不用费心费力判断Fragment是否还存活)
+
+
+二 LiveData与MutableLiveData区别
+LiveData与MutableLiveData的其实在概念上是一模一样的.唯一几个的区别如下:
+
+1.MutableLiveData的父类是LiveData
+
+2.LiveData在实体类里可以通知指定某个字段的数据更新.
+
+3.MutableLiveData则是完全是整个实体类或者数据类型变化后才通知.不会细节到某个字段
+
+
+创建LiveData
+
+public class DemoData extends LiveData<DemoData> {
+    private int tag1;
+    private int tag2;
+
+    public int getTag1() {
+        return tag1;
+
+    }
+    public void setTag1(int tag1) {
+        this.tag1 = tag1;
+        postValue(this);
+    }
+
+    public int getTag2() {
+        return tag2;
+    }
+
+    public void setTag2(int tag2) {
+        this.tag2 = tag2;
+        postValue(this);
+    }
+}
+
+很简单,只要继承LiveData并且在泛型里写下你的实体类,唯一需要注意的,postValue(this);
+这个方法是用于回调数据更新的方法. 你可以在你需要被观察的数据里添加.
+
+创建ViewModel
+我们需要在ViewModel实例化DemoData这个类. ViewModel(这个会在另一篇博客介绍)这个是用于管理多个Activity或者Fragment数据的类。
+ViewModel是MVVM的概念。你可以百度一下，google提供这套东西就是为了MVVM。
+
+public class DemoViewModel extends ViewModel {
+    // TODO: Implement the ViewModel
+    private DemoData mDemoData = new DemoData();
+
+    public DemoData getDemoData() {
+        return mDemoData;
+    }
+}
+在Activity或者Fragment绑定
+
+public class Demo2Activity extends AppCompatActivity {
+    private static final String TAG = "Demo2Activity";
+    private Button mBtnAddData;
+    private DemoViewModel mDemoViewModel;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_demo2);
+        mBtnAddData = findViewById(R.id.btn_add_data);
+        mDemoViewModel = ViewModelProviders.of(this).get(DemoViewModel.class);//获取ViewModel,让ViewModel与此activity绑定
+        mDemoViewModel.getDemoData().observe(this, new Observer<DemoData>() { //注册观察者,观察数据的变化
+            @Override
+            public void onChanged(DemoData demoData) {
+                Log.e(TAG, "onChanged: 数据有更新");
+            }
+        });
+
+        mBtnAddData.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.e(TAG, "onClick: 已经点击");
+                mDemoViewModel.getDemoData().setTag1(123); //这里手动用按键点击更新数据
+
+            }
+        });
+    }
+}
+
+MutableLiveData简单使用Demo
+
+创建MutableLiveData
+
+public class MutableLiveData<T> extends LiveData<T> {
+    @Override
+    public void postValue(T value) {
+        super.postValue(value);
+    }
+
+    @Override
+    public void setValue(T value) {
+        super.setValue(value);
+    }
+}
+
+因为MutableLiveData只是作用于变量所以我们直接就可以在ViewModel里实例化它,并且在泛型里标注变量的类型.
+
+public class DemoViewModel extends ViewModel {
+    // TODO: Implement the ViewModel
+    private MutableLiveData<String> myString = new MutableLiveData<>();
+
+    public MutableLiveData<String> getMyString(){
+        return myString;
+    }
+
+    public void setMyString(String string) {
+        this.myString.setValue(string);
+    }
+}
+
+在Activity或者Fragment绑定
+
+public class Demo1Activity extends AppCompatActivity {
+    private static final String TAG = "Demo1Activity";
+    private DemoViewModel mDemoViewModel;
+    private Button mBtn1;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_demo);
+        mBtn1 = findViewById(R.id.btn_1);
+        mDemoViewModel = ViewModelProviders.of(this).get(DemoViewModel.class);//获取ViewModel,让ViewModel与此activity绑定
+        mDemoViewModel.getMyString().observe(this, new Observer<String>() { //注册观察者
+            @Override
+            public void onChanged(String s) {
+                Log.e(TAG, "onChanged: 值有变化="+s);
+            }
+        });
+
+        mBtn1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mDemoViewModel.setMyString("测试"); //用手动按键点击改变值
+            }
+        });
+    }
+}
+
+API全解
+
+postValue()
+
+可能你已经在上面看到几次调用此方法了。postValue的特性如下：
+
+　　1.此方法可以在其他线程中调用
+
+　　2.如果在主线程执行发布的任务之前多次调用此方法，则仅将分配最后一个值。
+
+　　3.如果同时调用 .postValue(“a”)和.setValue(“b”)，一定是值b被值a覆盖。
+
+setValue()
+　　setValue()的特性如下：
+
+　　1.此方法只能在主线程里调用
+
+getValue()
+　　返回当前值。 注意，在后台线程上调用此方法并不能保证将接收到最新的值。
+
+removeObserver(@NonNull final Observer<? super T> observer)
+　　移除指定的观察者
+
+        Observer<String> observer = new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                mText.setText("内容改变=" + s);
+            }
+        };
+        mMainViewModel.getContent().observe(this, observer);//绑定
+        mMainViewModel.getContent().removeObserver(observer);//解除
+移除当前Activity或者Fragment的全部观察者
+removeObservers(@NonNull final LifecycleOwner owner)
+
+
+hasActiveObservers()
+如果此LiveData具有活动（Activity或者Fragment在前台,当前屏幕显示）的观察者，则返回true。其实如果这个数据的观察者在最前台就返回true，否则false。
+
+hasObservers()
+如果此LiveData具有观察者，则返回true。
+
+
+
+

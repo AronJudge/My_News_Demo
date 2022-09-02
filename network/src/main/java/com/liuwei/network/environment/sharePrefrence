@@ -1,0 +1,81 @@
+Android sharePreference使用
+
+SharedPreferences类，它是一个轻量级的存储类，特别适合用于保存软件配置参数。
+SharedPreferences保存数据，其背后是用xml文件存放数据，文件存放在/data/data/<package name>/shared_prefs目录下：
+
+一个简单的存储代码如下:
+SharedPreferences sharedPreferences = getSharedPreferences("wujay", Context.MODE_PRIVATE); //私有数据
+
+Editor editor = sharedPreferences.edit();//获取编辑器
+
+editor.putString("name", "wujaycode");
+
+editor.putInt("age", 4);
+
+editor.commit();//提交修改
+
+生成的wujay.xml文件内容如下：
+
+<map>
+
+<string name="name">wujaycode</string>
+
+<int name="age" value="4" />
+
+</map>
+
+第七次提交
+
+增加APP模块介绍
+
+
+常用的方法说明
+
+1. getSharedPreferences(name,mode)
+方法的第一个参数用于指定该文件的名称，名称不用带后缀，后缀会由Android自动加上；
+方法的第二个参数指定文件的操作模式，共有四种操作模式。
+
+MODE_APPEND: 追加方式存储
+
+MODE_PRIVATE: 私有方式存储,其他应用无法访问
+
+MODE_WORLD_READABLE: 表示当前文件可以被其他应用读取
+
+MODE_WORLD_WRITEABLE: 表示当前文件可以被其他应用写入
+
+
+该方法是静态的，可以直接调用，生成一个名为”yourpackageName_preferences“的偏好文件，且其mode为默认私有。
+SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(application);
+
+2. edit()方法获取editor对象
+
+Editor editor = sharedPreferences.edit();
+
+editor存储对象采用key-value键值对进行存放，editor.putString("name", "wujaycode");
+
+通过commit()方法提交数据
+
+3. 获取数据的方法
+
+SharedPreferences share=getSharedPreferences("Acitivity",Activity.MODE_WORLD_READABLE);
+
+int i=share.getInt("i",0);
+
+String str=share.getString("str","");
+
+boolean flag=share.getBoolean("flag",false);
+
+getString()第二个参数为缺省值，如果preference中不存在该key，将返回缺省值
+
+如果你想要删除通过SharedPreferences产生的文件，可以通过以下方法：
+
+File file= new File("/data/data/"+getPackageName().toString()+"/shared_prefs","Activity.xml");
+
+if(file.exists()){
+
+    file.delete();
+
+    Toast.makeText(TestActivity.this, "删除成功", Toast.LENGTH_LONG).show();
+}
+
+

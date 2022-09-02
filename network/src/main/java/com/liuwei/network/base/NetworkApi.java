@@ -46,9 +46,13 @@ public abstract class NetworkApi implements IEnvironment {
             return retrofitHashMap.get(mBaseUrl + service.getName());
         }
         Retrofit.Builder retrofitBuilder = new Retrofit.Builder();
+        // baseUrl总是以/结束，@URL不要以/开头
         retrofitBuilder.baseUrl(mBaseUrl);
+        // 使用OkHttp Client
         retrofitBuilder.client(getOkHttpClient());
+        // 集成Gson转换器
         retrofitBuilder.addConverterFactory(GsonConverterFactory.create());
+        // 集成RxJava处理
         retrofitBuilder.addCallAdapterFactory(RxJava2CallAdapterFactory.create());
         Retrofit retrofit = retrofitBuilder.build();
         retrofitHashMap.put(mBaseUrl + service.getName(), retrofit);
@@ -90,6 +94,40 @@ public abstract class NetworkApi implements IEnvironment {
             }
         };
     }
+
+    /**
+     *     @Override
+     *     protected Interceptor getInterceptor() {
+     *         return new Interceptor() {
+     *             @Override
+     *             public Response intercept(Chain chain) throws IOException {
+     *                 String timeStr = TecentUtil.getTimeStr();
+     *                 Request.Builder builder = chain.request().newBuilder();
+     *                 builder.addHeader("Source", "source");
+     *                 builder.addHeader("Authorization", TecentUtil.getAuthorization(timeStr));
+     *                 builder.addHeader("Date", timeStr);
+     *                 return chain.proceed(builder.build());
+     *             }
+     *         };
+     *     }
+     *
+     *     protected <T> Function<T, T> getAppErrorHandler() {
+     *         return new Function<T, T>() {
+     *             @Override
+     *             public T apply(T response) throws Exception {
+     *                 //response中code码不会0 出现错误
+     *                 if (response instanceof TecentBaseResponse && ((TecentBaseResponse) response).showapiResCode != 0) {
+     *                     ExceptionHandle.ServerException exception = new ExceptionHandle.ServerException();
+     *                     exception.code = ((TecentBaseResponse) response).showapiResCode;
+     *                     exception.message = ((TecentBaseResponse) response).showapiResError != null ? ((TecentBaseResponse) response).showapiResError : "";
+     *                     throw exception;
+     *                 }
+     *                 return response;
+     *             }
+     *         };
+     *     }
+     */
+
 
     protected abstract Interceptor getInterceptor();
 
